@@ -1,3 +1,9 @@
-// Commands y queries se añadirán mediante specs.
-// Esta capa coordina dominio y puertos, pero no contiene SQL ni HTTP.
-export {};
+export * from "./ports/clients.js";
+export * from "./commands/clients.js";
+export * from "./queries/clients.js";
+export * from "./ports/quotes.js";
+export * from "./commands/quotes.js";
+export * from "./queries/quotes.js";
+export * from "./ports/quote-workflow.js";
+export * from "./commands/quote-workflow.js";
+export * from "./queries/catalogs.js";

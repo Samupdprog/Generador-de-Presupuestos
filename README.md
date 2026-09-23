@@ -1,14 +1,16 @@
 # Generador de Presupuestos
 
-Base reutilizable para construir generadores de presupuestos personalizados sin rehacer backend, dominio, base de datos, MCP e infraestructura para cada cliente.
+Plataforma base reutilizable para construir instalaciones de presupuestos por
+cliente sin rehacer backend, dominio, base de datos e infraestructura.
 
 La intención es sencilla:
 
 1. clonar el repositorio;
 2. configurar `.env`;
-3. personalizar principalmente `apps/web`;
-4. mantener estable el núcleo de dominio y aplicación;
-5. desplegar el mismo conjunto de servicios.
+3. definir identidad, impuestos, features y branding;
+4. personalizar principalmente `apps/web`;
+5. mantener estable el núcleo de dominio y aplicación;
+6. desplegar el mismo conjunto de servicios.
 
 No es un SaaS multi-tenant. Cada cliente puede tener una instalación aislada y fácil de entender.
 
@@ -68,8 +70,14 @@ Requisitos:
 - Docker + Docker Compose
 
 ```bash
-npm install
+npm ci
 cp .env.example .env
+```
+
+Para instalar las dependencias después de modificar `package.json`, usa:
+
+```bash
+npm install
 ```
 
 Generar un `.env` seguro para una nueva instalación:
@@ -93,6 +101,22 @@ Desarrollo web:
 ```bash
 npm run dev:web
 ```
+
+Otros servicios:
+
+```bash
+npm run dev:api
+npm run dev:mcp
+npm run dev:worker
+```
+
+Validación completa del monorepo:
+
+```bash
+npm run check
+```
+
+Este comando ejecuta el typecheck, las pruebas y la compilación de todos los workspaces.
 
 ## Producción
 
@@ -122,6 +146,24 @@ sudo ./infra/server-audit/audit.sh
 Genera un informe sanitizado con Docker, Compose, redes, volúmenes, puertos, mounts y rutas para comprender el servidor antes de modificarlo.
 
 Consulta `infra/server-audit/README.md`.
+
+## Crear una instalación
+
+Sigue [create-new-client.md](docs/operations/create-new-client.md). Las
+instalaciones cliente son repositorios independientes con `origin` propio y
+`upstream` apuntando a esta base. No se mantienen branches permanentes por
+cliente.
+
+## Migraciones y pruebas
+
+```bash
+npm run db:generate
+docker compose run --rm migrate
+npm run typecheck
+npm test
+npm run test:integration
+npm run build
+```
 
 ## Estado actual
 

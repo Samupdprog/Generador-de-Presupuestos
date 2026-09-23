@@ -18,9 +18,14 @@
     "dev:worker": "npm run dev --workspace @quotes/worker",
     "infra:up": "docker compose up -d postgres",
     "infra:down": "docker compose down",
+    "db:generate": "npm run db:generate --workspace @quotes/db",
+    "db:mi": "npm run db:migrate --workspace @quotes/db",
+    "db:migrate": "npm run db:migrate --workspace @quotes/db",
+    "db:seed": "npm run db:seed --workspace @quotes/db",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "test:integration": "vitest run packages/db/integration/clients.integration.test.ts",
     "check": "npm run typecheck && npm test && npm run build"
   }
 }

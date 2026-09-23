@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/index.mjs",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --external:pg --outfile=dist/index.mjs",
     "start": "node dist/index.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@quotes/application": "0.1.0",
-    "@quotes/contracts": "0.1.0"
+    "@quotes/contracts": "0.1.0",
+    "@quotes/db": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

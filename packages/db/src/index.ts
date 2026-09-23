@@ -1,3 +1,9 @@
-// La conexión y repositorios se implementarán junto a SPECs de persistencia.
-// Dinero en PostgreSQL debe usar numeric y salir como string/Decimal, no float.
-export {};
+export * from "./schema/common.js";
+export * from "./schema/quotes.js";
+export * from "./schema/operations.js";
+export * from "./client.js";
+export * from "./errors.js";
+export * from "./repositories/clients.js";
+export * from "./repositories/quotes.js";
+export * from "./repositories/quote-workflow.js";
+export * from "./repositories/catalogs.js";

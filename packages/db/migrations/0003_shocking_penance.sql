@@ -1,0 +1,1 @@
+ALTER TABLE "suppliers" ADD COLUMN "active" boolean DEFAULT true NOT NULL;

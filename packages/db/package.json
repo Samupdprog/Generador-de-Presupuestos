@@ -5,9 +5,14 @@
   "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",
+    "db:mi": "npm run db:migrate",
+    "db:seed": "tsx src/seed.ts"
   },
   "dependencies": {
+    "@quotes/domain": "0.1.0",
     "drizzle-orm": "^0.44.5",
     "pg": "^8.16.3"
   },

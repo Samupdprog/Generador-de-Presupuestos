@@ -1,0 +1,225 @@
+import { randomUUID } from "node:crypto";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { eq } from "drizzle-orm";
+import {
+  clients,
+  createClientRepository,
+  createDb,
+  installations,
+  RevisionConflictError,
+  createQuoteRepository,
+  quoteLines,
+  quotes,
+  referenceCounters,
+  ReadOnlyQuoteError,
+  createQuoteWorkflowRepository,
+  quoteCalculationRuns,
+  quoteLineCalculations,
+  quoteLineDiscounts,
+  quoteLineLaborEntries,
+  quotePriceAdjustments,
+  quotePriceAdjustmentTargets,
+  quoteTextBlocks,
+  quoteVersions,
+  auditEvents,
+} from "../src/index.js";
+
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is required for test:integration");
+}
+
+describe("clients repository integration", () => {
+  const installationId = randomUUID();
+  let clientId: string;
+  const { db, pool } = createDb(databaseUrl);
+  const repository = createClientRepository(db);
+
+  beforeAll(async () => {
+    await db.insert(installations).values({
+      id: installationId,
+      slug: `integration-${installationId}`,
+      displayName: "Integration test",
+    });
+  });
+
+  afterAll(async () => {
+    await db.delete(clients).where(eq(clients.id, clientId));
+    await db.delete(installations).where(eq(installations.id, installationId));
+    await pool.end();
+  });
+
+  it("creates and gets a client", async () => {
+    const created = await repository.create({
+      installationId,
+      name: "Cliente integración",
+      email: "integration@example.test",
+    });
+
+    clientId = created.id;
+    expect(created.id).toBeDefined();
+    expect(created.name).toBe("Cliente integración");
+    expect(created.revision).toBe(0);
+  });
+
+  it("updates with the expected revision and rejects stale updates", async () => {
+    const current = await repository.getById(installationId, clientId);
+    expect(current).not.toBeNull();
+
+    const updated = await repository.update({
+      id: current!.id,
+      installationId,
+      expectedRevision: current!.revision,
+      phone: "+34900111222",
+    });
+    expect(updated.phone).toBe("+34900111222");
+    expect(updated.revision).toBe(current!.revision + 1);
+
+    await expect(repository.update({
+      id: current!.id,
+      installationId,
+      expectedRevision: current!.revision,
+      phone: "stale-update",
+    })).rejects.toBeInstanceOf(RevisionConflictError);
+
+    const unchanged = await repository.getById(installationId, clientId);
+    expect(unchanged?.phone).toBe("+34900111222");
+    expect(unchanged?.revision).toBe(updated.revision);
+  });
+});
+
+describe("quotes repository integration", () => {
+  const installationId = randomUUID();
+  const { db, pool } = createDb(databaseUrl);
+  const repository = createQuoteRepository(db);
+  const quoteIds: string[] = [];
+
+  beforeAll(async () => {
+    await db.insert(installations).values({
+      id: installationId,
+      slug: `quote-integration-${installationId}`,
+      displayName: "Quote integration test",
+    });
+  });
+
+  afterAll(async () => {
+    for (const quoteId of quoteIds) await db.delete(quoteLines).where(eq(quoteLines.quoteId, quoteId));
+    await db.delete(quotes).where(eq(quotes.installationId, installationId));
+    await db.delete(referenceCounters).where(eq(referenceCounters.installationId, installationId));
+    await db.delete(installations).where(eq(installations.id, installationId));
+    await pool.end();
+  });
+
+  it("creates, duplicates from root and preserves the duplicate root", async () => {
+    const root = await repository.create({ installationId, title: "Instalación vivienda" });
+    quoteIds.push(root.id);
+    expect(root.reference).toBe("P-1");
+    expect(root.status).toBe("draft");
+    expect(root.origin).toBe("generator");
+    expect(root.accessMode).toBe("editable");
+
+    const first = await repository.duplicateQuote(installationId, root.id);
+    quoteIds.push(first.id);
+    expect(first.title).toBe("Instalación vivienda.1");
+    expect(first.duplicateRootQuoteId).toBe(root.id);
+
+    const second = await repository.duplicateQuote(installationId, first.id);
+    quoteIds.push(second.id);
+    expect(second.title).toBe("Instalación vivienda.2");
+    expect(second.duplicateRootQuoteId).toBe(root.id);
+  });
+
+  it("rejects normal updates to read-only quotes but allows duplication", async () => {
+    const imported = await repository.create({
+      installationId,
+      title: "Holded estimate",
+      origin: "holded",
+      accessMode: "read_only",
+    });
+    quoteIds.push(imported.id);
+
+    await expect(repository.update({
+      installationId,
+      id: imported.id,
+      expectedRevision: imported.revision,
+      title: "No permitido",
+    })).rejects.toBeInstanceOf(ReadOnlyQuoteError);
+
+    const copy = await repository.duplicateQuote(installationId, imported.id);
+    quoteIds.push(copy.id);
+    expect(copy.origin).toBe("generator");
+    expect(copy.accessMode).toBe("editable");
+    expect(copy.holdedEstimateId).toBeNull();
+  });
+});
+
+describe("quote vertical workflow integration", () => {
+  const installationId = randomUUID();
+  const { db, pool } = createDb(databaseUrl);
+  const quotesRepository = createQuoteRepository(db);
+  const workflow = createQuoteWorkflowRepository(db);
+  let quoteId: string;
+  let materialLineId: string;
+  let laborLineId: string;
+
+  beforeAll(async () => {
+    await db.insert(installations).values({ id: installationId, slug: `vertical-${installationId}`, displayName: "Vertical integration" });
+  });
+
+  afterAll(async () => {
+    if (quoteId) {
+      await db.delete(quoteLineCalculations).where(eq(quoteLineCalculations.calculationRunId, quoteId));
+      const runs = await db.select({ id: quoteCalculationRuns.id }).from(quoteCalculationRuns).where(eq(quoteCalculationRuns.quoteId, quoteId));
+      for (const run of runs) await db.delete(quoteLineCalculations).where(eq(quoteLineCalculations.calculationRunId, run.id));
+      await db.delete(quoteCalculationRuns).where(eq(quoteCalculationRuns.quoteId, quoteId));
+      await db.delete(quoteVersions).where(eq(quoteVersions.quoteId, quoteId));
+      await db.delete(auditEvents).where(eq(auditEvents.entityId, quoteId));
+      const adjustments = await db.select({ id: quotePriceAdjustments.id }).from(quotePriceAdjustments).where(eq(quotePriceAdjustments.quoteId, quoteId));
+      for (const adjustment of adjustments) await db.delete(quotePriceAdjustmentTargets).where(eq(quotePriceAdjustmentTargets.adjustmentId, adjustment.id));
+      const lines = await db.select({ id: quoteLines.id }).from(quoteLines).where(eq(quoteLines.quoteId, quoteId));
+      for (const line of lines) {
+        await db.delete(quoteLineDiscounts).where(eq(quoteLineDiscounts.quoteLineId, line.id));
+        await db.delete(quoteLineLaborEntries).where(eq(quoteLineLaborEntries.quoteLineId, line.id));
+      }
+      await db.delete(quoteLines).where(eq(quoteLines.quoteId, quoteId));
+      await db.delete(quotePriceAdjustments).where(eq(quotePriceAdjustments.quoteId, quoteId));
+      await db.delete(quoteTextBlocks).where(eq(quoteTextBlocks.quoteId, quoteId));
+      await db.delete(quotes).where(eq(quotes.id, quoteId));
+      await db.delete(referenceCounters).where(eq(referenceCounters.installationId, installationId));
+    }
+    await db.delete(installations).where(eq(installations.id, installationId));
+    await pool.end();
+  });
+
+  it("persists material, labor, travel, adjustment, text and calculation atomically", async () => {
+    const quote = await quotesRepository.create({ installationId, title: "Presupuesto vertical" });
+    quoteId = quote.id;
+    const material = await workflow.addLine({ installationId, quoteId, expectedRevision: 0, type: "material", description: "Material", quantity: "1", igicRate: "7", saleRule: "unit_price", saleRuleValue: "115", supplierUnitPrice: "100" });
+    materialLineId = (await quotesRepository.getQuoteById(installationId, quoteId))!.lines[0]!.id;
+    await workflow.addSupplierDiscount(installationId, quoteId, materialLineId, 1, "20");
+    await workflow.addSupplierDiscount(installationId, quoteId, materialLineId, 2, "5");
+    const labor = await workflow.addLine({ installationId, quoteId, expectedRevision: 3, type: "labor", description: "Instalación", quantity: "1", igicRate: "0", saleRule: "unit_price", saleRuleValue: "0" });
+    laborLineId = (await quotesRepository.getQuoteById(installationId, quoteId))!.lines[1]!.id;
+    await workflow.addLaborEntry(installationId, quoteId, laborLineId, 4, { employeeNameSnapshot: "A", hours: "2", costRateSnapshot: "10", saleRateSnapshot: "20" });
+    await workflow.addLaborEntry(installationId, quoteId, laborLineId, 5, { employeeNameSnapshot: "B", hours: "3", costRateSnapshot: "12", saleRateSnapshot: "25" });
+    await workflow.addLine({ installationId, quoteId, expectedRevision: 6, type: "travel", description: "Desplazamiento", quantity: "1", igicRate: "3", saleRule: "unit_price", saleRuleValue: "50", directUnitCost: "20" });
+    await workflow.addAdjustment(installationId, quoteId, 7, { scope: "quote", mode: "amount", value: "300" });
+    await workflow.addText(installationId, quoteId, 8, "Condiciones", "Texto snapshot");
+
+    const result = await quotesRepository.getQuoteById(installationId, quoteId);
+    expect(result?.revision).toBe(9);
+    expect(result?.lines).toHaveLength(3);
+    expect(result?.lines[0]?.discounts).toHaveLength(2);
+    expect(result?.lines[1]?.laborEntries).toHaveLength(2);
+    expect(result?.priceAdjustments).toHaveLength(1);
+    expect(result?.texts).toHaveLength(1);
+    expect(result?.calculation).not.toBeNull();
+    const runs = await db.select().from(quoteCalculationRuns).where(eq(quoteCalculationRuns.quoteId, quoteId));
+    const run = runs.sort((left, right) => right.quoteRevision - left.quoteRevision)[0];
+    expect(run?.saleWithoutTax).toBe("580.00");
+    expect(run?.taxTotal).toBe("19.78");
+    expect(await db.select().from(quoteVersions).where(eq(quoteVersions.quoteId, quoteId))).toHaveLength(9);
+    expect(await db.select().from(auditEvents).where(eq(auditEvents.entityId, quoteId))).toHaveLength(9);
+  });
+});

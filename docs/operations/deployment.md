@@ -44,8 +44,27 @@ git pull --ff-only
 ./scripts/deploy.sh
 ```
 
+Aplicar migraciones pendientes desde la red privada de Compose:
+
+```bash
+docker compose run --rm migrate
+```
+
+El servicio es one-shot, no publica puertos y espera a que PostgreSQL esté healthy.
+
+Crear o actualizar la instalación configurada en `INSTALLATION_SLUG`:
+
+```bash
+npm run db:seed
+```
+
+El comando es idempotente por `INSTALLATION_SLUG` y devuelve el UUID que debe
+configurarse como `INSTALLATION_ID` para API y worker.
+
 ## Logs
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f --tail=200
 ```
+
+La red `private` mantiene el acceso interno entre servicios y PostgreSQL. API y worker también se conectan a `egress` para acceder a servicios externos como Holded; PostgreSQL permanece fuera de esa red.

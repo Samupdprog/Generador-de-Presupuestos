@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790190739758,
+      "tag": "0000_charming_firebird",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790191898155,
+      "tag": "0001_vengeful_luke_cage",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790192656444,
+      "tag": "0002_brown_ben_urich",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790195151361,
+      "tag": "0003_shocking_penance",
+      "breakpoints": true
+    }
+  ]
+}

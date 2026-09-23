@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" ADD COLUMN "client_snapshot" jsonb;

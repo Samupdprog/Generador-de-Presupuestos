@@ -31,12 +31,19 @@ La PR debe enlazar la spec cuando el cambio no sea trivial.
 
 ## Nuevo cliente
 
-Para una instalación derivada:
+No usamos branches permanentes por cliente. Las branches `feature/*`, `fix/*` y
+`chore/*` son temporales y se eliminan después del merge.
+
+Cada instalación derivada tiene su propio repositorio. La base puede usarse como
+GitHub Template Repository:
 
 ```bash
 git clone https://github.com/Samupdprog/Generador-de-Presupuestos.git cliente-presupuestos
 cd cliente-presupuestos
+git remote rename origin upstream
+git remote add origin git@github.com:ORG/cliente-presupuestos.git
 ./scripts/setup-instance.sh cliente presupuestos.cliente.com mcp.cliente.com admin@cliente.com
 ```
 
-Después se personaliza principalmente `apps/web`.
+Después se personaliza principalmente `apps/web`. Para el procedimiento completo,
+consulta `docs/operations/create-new-client.md`.
