@@ -1,0 +1,33 @@
+name: shared-traefik
+
+services:
+  traefik:
+    image: traefik:v3.7
+    restart: unless-stopped
+    network_mode: host
+    command:
+      - "--api.dashboard=false"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  default:
+    name: ${TRAEFIK_NETWORK:-app-net}
+
+volumes:
+  letsencrypt:
+    name: shared-traefik-letsencrypt

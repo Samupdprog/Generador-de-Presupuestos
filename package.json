@@ -1,0 +1,22 @@
+{
+  "name": "generador-de-presupuestos",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present dev",
+    "dev:web": "pnpm --filter @quotes/web dev",
+    "dev:api": "pnpm --filter @quotes/api dev",
+    "dev:mcp": "pnpm --filter @quotes/mcp dev",
+    "dev:worker": "pnpm --filter @quotes/worker dev",
+    "infra:up": "docker compose up -d postgres",
+    "infra:down": "docker compose down",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "check": "pnpm typecheck && pnpm test && pnpm build"
+  }
+}

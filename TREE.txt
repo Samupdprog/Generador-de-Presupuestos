@@ -1,0 +1,135 @@
+├── .dockerignore
+├── .editorconfig
+├── .env.example
+├── .github/
+  ├── workflows/
+    ├── ci.yml
+├── .gitignore
+├── .nvmrc
+├── README.md
+├── apps/
+  ├── api/
+    ├── package.json
+    ├── src/
+      ├── index.ts
+    ├── tsconfig.json
+  ├── mcp/
+    ├── package.json
+    ├── src/
+      ├── index.ts
+    ├── tsconfig.json
+  ├── web/
+    ├── app/
+      ├── api/
+        ├── health/
+          ├── route.ts
+      ├── layout.tsx
+      ├── page.tsx
+    ├── next-env.d.ts
+    ├── next.config.ts
+    ├── package.json
+    ├── public/
+      ├── .gitkeep
+    ├── tsconfig.json
+  ├── worker/
+    ├── package.json
+    ├── src/
+      ├── index.ts
+    ├── tsconfig.json
+├── backups/
+  ├── .gitkeep
+├── docker-compose.prod.yml
+├── docker-compose.yml
+├── docs/
+  ├── README.md
+  ├── adr/
+    ├── 001-monorepo.md
+    ├── 002-api-authority.md
+    ├── 003-money.md
+    ├── 004-single-client-deployment.md
+  ├── architecture.md
+  ├── domain/
+    ├── clients-and-quotes.md
+    ├── quote-engine.md
+  ├── operations/
+    ├── backup-restore.md
+    ├── customizing-a-client.md
+    ├── deployment.md
+  ├── rules.md
+  ├── sdd.md
+  ├── specs/
+    ├── 000-foundation.md
+    ├── _template.md
+├── infra/
+  ├── docker/
+    ├── api.Dockerfile
+    ├── mcp.Dockerfile
+    ├── web.Dockerfile
+    ├── worker.Dockerfile
+  ├── server-audit/
+    ├── README.md
+    ├── audit.sh
+  ├── traefik/
+    ├── .env.example
+    ├── README.md
+    ├── docker-compose.yml
+    ├── install.sh
+├── package.json
+├── packages/
+  ├── application/
+    ├── package.json
+    ├── src/
+      ├── commands/
+        ├── README.md
+      ├── index.ts
+      ├── queries/
+        ├── README.md
+    ├── tsconfig.json
+  ├── auth/
+    ├── package.json
+    ├── src/
+      ├── index.ts
+    ├── tsconfig.json
+  ├── contracts/
+    ├── package.json
+    ├── src/
+      ├── index.ts
+    ├── tsconfig.json
+  ├── db/
+    ├── migrations/
+      ├── README.md
+    ├── package.json
+    ├── src/
+      ├── index.ts
+      ├── schema/
+        ├── README.md
+    ├── tsconfig.json
+  ├── domain/
+    ├── package.json
+    ├── src/
+      ├── clients/
+        ├── .gitkeep
+      ├── index.ts
+      ├── money/
+        ├── money.test.ts
+        ├── money.ts
+      ├── pricing/
+        ├── .gitkeep
+      ├── quote-engine/
+        ├── .gitkeep
+      ├── quotes/
+        ├── .gitkeep
+    ├── tsconfig.json
+  ├── holded/
+    ├── package.json
+    ├── src/
+      ├── index.ts
+    ├── tsconfig.json
+├── pnpm-workspace.yaml
+├── scripts/
+  ├── backup-postgres.sh
+  ├── deploy.sh
+  ├── preflight.sh
+  ├── restore-postgres.sh
+  ├── setup-instance.sh
+└── tsconfig.base.json

@@ -1,0 +1,25 @@
+services:
+  web:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
+      - "traefik.http.routers.${INSTANCE_SLUG}-web.rule=Host(`${APP_HOST}`)"
+      - "traefik.http.routers.${INSTANCE_SLUG}-web.entrypoints=websecure"
+      - "traefik.http.routers.${INSTANCE_SLUG}-web.tls=true"
+      - "traefik.http.routers.${INSTANCE_SLUG}-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${INSTANCE_SLUG}-web.loadbalancer.server.port=3000"
+
+  mcp:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
+      - "traefik.http.routers.${INSTANCE_SLUG}-mcp.rule=Host(`${MCP_HOST}`)"
+      - "traefik.http.routers.${INSTANCE_SLUG}-mcp.entrypoints=websecure"
+      - "traefik.http.routers.${INSTANCE_SLUG}-mcp.tls=true"
+      - "traefik.http.routers.${INSTANCE_SLUG}-mcp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${INSTANCE_SLUG}-mcp.loadbalancer.server.port=4001"
+
+networks:
+  public:
+    name: ${TRAEFIK_NETWORK}
+    external: true

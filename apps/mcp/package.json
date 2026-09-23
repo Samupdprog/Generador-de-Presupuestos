@@ -1,0 +1,27 @@
+{
+  "name": "@quotes/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/index.mjs",
+    "start": "node dist/index.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/express": "^2.0.0",
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "@quotes/contracts": "workspace:*",
+    "express": "^5.1.0",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.9",
+    "tsx": "^4.20.5",
+    "typescript": "^6.0.0"
+  }
+}
