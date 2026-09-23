@@ -1,4 +1,4 @@
-import Decimal from "decimal.js";
+import { Decimal } from "decimal.js";
 
 export type Money = Decimal;
 export type MoneyInput = Decimal.Value;

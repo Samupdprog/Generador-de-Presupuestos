@@ -2,21 +2,25 @@
   "name": "generador-de-presupuestos",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "npm@11",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm -r --parallel --if-present dev",
-    "dev:web": "pnpm --filter @quotes/web dev",
-    "dev:api": "pnpm --filter @quotes/api dev",
-    "dev:mcp": "pnpm --filter @quotes/mcp dev",
-    "dev:worker": "pnpm --filter @quotes/worker dev",
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev --workspace @quotes/web",
+    "dev:api": "npm run dev --workspace @quotes/api",
+    "dev:mcp": "npm run dev --workspace @quotes/mcp",
+    "dev:worker": "npm run dev --workspace @quotes/worker",
     "infra:up": "docker compose up -d postgres",
     "infra:down": "docker compose down",
-    "build": "pnpm -r --if-present build",
-    "typecheck": "pnpm -r --if-present typecheck",
-    "test": "pnpm -r --if-present test",
-    "check": "pnpm typecheck && pnpm test && pnpm build"
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run typecheck && npm test && npm run build"
   }
 }

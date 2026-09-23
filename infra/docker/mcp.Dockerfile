@@ -1,12 +1,9 @@
 FROM node:22-alpine AS builder
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 WORKDIR /app
 COPY . .
-RUN pnpm install --no-frozen-lockfile
+RUN npm install
 
-RUN pnpm --filter @quotes/mcp build
+RUN npm run build --workspace @quotes/mcp
 
 FROM node:22-alpine AS runner
 WORKDIR /app

@@ -64,12 +64,11 @@ No se pretende documentar cada línea de código. Se documentan decisiones, cont
 Requisitos:
 
 - Node.js 22+
-- pnpm mediante Corepack
+- npm 11+
 - Docker + Docker Compose
 
 ```bash
-corepack enable
-pnpm install
+npm install
 cp .env.example .env
 ```
 
@@ -92,7 +91,7 @@ docker compose up -d postgres
 Desarrollo web:
 
 ```bash
-pnpm dev:web
+npm run dev:web
 ```
 
 ## Producción

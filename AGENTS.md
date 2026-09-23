@@ -28,9 +28,9 @@ No crear capas nuevas si una interfaz o función existente resuelve el problema 
 Antes de cerrar un cambio:
 
 ```bash
-pnpm typecheck
-pnpm test
-pnpm build
+npm run typecheck
+npm test
+npm run build
 ```
 
 Si cambia infraestructura, validar también Compose y actualizar `docs/operations/`.

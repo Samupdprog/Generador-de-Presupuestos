@@ -125,7 +125,6 @@
     ├── src/
       ├── index.ts
     ├── tsconfig.json
-├── pnpm-workspace.yaml
 ├── scripts/
   ├── backup-postgres.sh
   ├── deploy.sh

@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@quotes/application": "workspace:*",
-    "@quotes/contracts": "workspace:*"
+    "@quotes/application": "0.1.0",
+    "@quotes/contracts": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

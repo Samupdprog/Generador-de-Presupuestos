@@ -8,8 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@quotes/contracts": "workspace:*",
-    "@quotes/domain": "workspace:*"
+    "@quotes/contracts": "0.1.0",
+    "@quotes/domain": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^6.0.0"
